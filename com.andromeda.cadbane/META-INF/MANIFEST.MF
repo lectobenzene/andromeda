@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CadBane
+Bundle-SymbolicName: com.andromeda.cadbane
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.andromeda.cadbane.Activator
+Bundle-Vendor: Saravana
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
