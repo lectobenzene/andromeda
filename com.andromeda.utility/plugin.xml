@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.andromeda.utility.preferences.AndromedaPreferencePage"
+            id="com.andromeda.utility.preferences"
+            name="Andromeda">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.andromeda.utility.preferences.AndromedaPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+         <menu
+               id="com.andromeda.menu.Andromedatools"
+               label="Andromeda Tools">
+         </menu>
+      </menuContribution>
+   </extension>
+</plugin>
