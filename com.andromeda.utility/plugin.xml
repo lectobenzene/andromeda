@@ -21,7 +21,7 @@
             allPopups="false"
             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
          <menu
-               id="com.andromeda.menu.Andromedatools"
+               id="com.andromeda.menu.andromedatools"
                label="Andromeda Tools">
          </menu>
       </menuContribution>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:com.andromeda.menu.andromedatools?after=additions">
+         <menu
+               id="com.andromeda.cadbane.menu.search"
+               label="Search">
+            <command
+                  commandId="com.andromeda.cadbane.search"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.andromeda.cadbane.search"
+            name="Search">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.andromeda.cadbane.handlers.SearchHandler"
+            commandId="com.andromeda.cadbane.search">
+      </handler>
+   </extension>
+
+</plugin>
