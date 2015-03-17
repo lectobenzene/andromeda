@@ -1,39 +1,47 @@
 package com.andromeda.cadbane.search;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
+import org.eclipse.search.ui.text.FileTextSearchScope;
 
 public class StringSearchQuery {
 
-	public StringSearchQuery() {
+	private final List<String> results;
+	private FileTextSearchScope scope;
+	private Pattern pattern;
 
-	}
-
-	public TextSearchRequestor getRequestor() {
-		return new TextSearchResultCollector();
+	public StringSearchQuery(List<String> results, FileTextSearchScope scope,
+			Pattern pattern) {
+		this.results = results;
+		this.scope = scope;
+		this.pattern = pattern;
 	}
 
 	private final static class TextSearchResultCollector extends
 			TextSearchRequestor {
 
 		private static final String STRINGS = "strings.xml";
-		private ArrayList cachedMatches;
+		private List<String> cachedMatches;
+		private List<String> results;
 
-		private TextSearchResultCollector() {
-
+		private TextSearchResultCollector(List<String> results) {
+			this.results = results;
 		}
 
 		public boolean acceptFile(IFile file) throws CoreException {
 			// Omit all the files that shouldn't be checked: strings.xml
 			// Search only the .xml files, inside the layout ?? What if there is
 			// a reference is other xml like animator or styles
-			if(STRINGS.equals(file.getName())){
+			if (STRINGS.equals(file.getName())) {
 				return false;
 			}
 			return true;
@@ -47,38 +55,50 @@ public class StringSearchQuery {
 		public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor)
 				throws CoreException {
 			// Find the "id" from the view
-			System.out.println("FileNAME : "+matchRequestor.getFile().getName());
+			System.out.println("FileNAME : "
+					+ matchRequestor.getFile().getName());
 			int matchOffset = matchRequestor.getMatchOffset();
-			System.out.println("MatchOFFSET : "+matchOffset);
-			System.out.println("MatchLENGTH : "+matchRequestor.getMatchLength());
+			System.out.println("MatchOFFSET : " + matchOffset);
+			System.out.println("MatchLENGTH : "
+					+ matchRequestor.getMatchLength());
 			int startIndex = indexOfChar(matchRequestor, '>', true);
 			int endIndex = indexOfChar(matchRequestor, '<', false);
 			String contents = getContents(matchRequestor, startIndex, endIndex);
-			System.out.println("CONTENTS\n"+contents);
-			Pattern patternToFind = Pattern.compile("android:id=\"@(?:\\+)?id/([^\"]*)\"");
+			System.out.println("CONTENTS\n" + contents);
+			Pattern patternToFind = Pattern
+					.compile("android:id=\"@(?:\\+)?id/([^\"]*)\"");
 			String idString = findPatternFromString(contents, patternToFind);
-			System.out.println("ID_STRING found :"+idString);
+			System.out.println("ID_STRING found :" + idString);
+			if (idString != null && idString.length() != 0) {
+				// Process the idResults to add the R.id substring
+				cachedMatches.add(processIdString(idString));
+			}
 			return true;
+		}
+
+		private String processIdString(String idString) {
+			return "R.id."+idString;
 		}
 
 		private String findPatternFromString(String contents,
 				Pattern patternToFind) {
 
 			Matcher matcher = patternToFind.matcher(contents);
-			String group= null;
-			if(matcher.find()){
-				group = matcher.group(1);				
+			String group = null;
+			if (matcher.find()) {
+				group = matcher.group(1);
 			}
-			
+
 			return group;
 		}
 
-		private int indexOfChar(TextSearchMatchAccess matchRequestor, char charToFind, boolean shouldSearchBackward) {
+		private int indexOfChar(TextSearchMatchAccess matchRequestor,
+				char charToFind, boolean shouldSearchBackward) {
 			int matchOffset = matchRequestor.getMatchOffset();
-			while(charToFind != matchRequestor.getFileContentChar(matchOffset)){
-				if(shouldSearchBackward){
+			while (charToFind != matchRequestor.getFileContentChar(matchOffset)) {
+				if (shouldSearchBackward) {
 					matchOffset--;
-				}else{
+				} else {
 					matchOffset++;
 				}
 			}
@@ -102,11 +122,24 @@ public class StringSearchQuery {
 		public void beginReporting() {
 			// Clear everything
 			System.out.println("Begin - Reporting");
+			cachedMatches = new ArrayList<String>();
+
 		}
 
 		public void endReporting() {
 			System.out.println("End - Reporting");
+			results.addAll(cachedMatches);
+			cachedMatches.clear();
+			cachedMatches = null;
 		}
 
+	}
+
+	public void run(IProgressMonitor monitor) {
+		// clear the previous results
+		results.clear();
+		TextSearchRequestor requestor = new TextSearchResultCollector(results);
+		TextSearchEngine.create().search(scope, requestor,
+				pattern, monitor);
 	}
 }
