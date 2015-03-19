@@ -28,6 +28,8 @@ public class StringSearchQuery {
 	private final static class StringTextSearchResultCollector extends TextSearchRequestor {
 
 		private static final String STRINGS = "strings.xml";
+		private static final Pattern patternToFind = Pattern.compile("android:id=\"@(?:\\+)?id/([^\"]*)\"");
+
 		private List<String> cachedMatches;
 		private List<String> results;
 
@@ -52,11 +54,10 @@ public class StringSearchQuery {
 
 		public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor) throws CoreException {
 			// Find the "id" from the view
-			int matchOffset = matchRequestor.getMatchOffset();
 			int startIndex = indexOfChar(matchRequestor, '>', true);
 			int endIndex = indexOfChar(matchRequestor, '<', false);
 			String contents = getContents(matchRequestor, startIndex, endIndex);
-			Pattern patternToFind = Pattern.compile("android:id=\"@(?:\\+)?id/([^\"]*)\"");
+
 			String idString = findPatternFromString(contents, patternToFind);
 			if (idString != null && idString.length() != 0) {
 				// Process the idResults to add the R.id substring
@@ -107,13 +108,11 @@ public class StringSearchQuery {
 
 		public void beginReporting() {
 			// Clear everything
-			System.out.println("Begin - Reporting");
 			cachedMatches = new ArrayList<String>();
 
 		}
 
 		public void endReporting() {
-			System.out.println("End - Reporting");
 			results.addAll(cachedMatches);
 			cachedMatches.clear();
 			cachedMatches = null;

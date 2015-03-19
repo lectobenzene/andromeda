@@ -3,10 +3,9 @@ package com.andromeda.cadbane.hyperlinks;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IRegion;
 
-public class StringHyperlink extends AbstractHyperlink {
+import com.andromeda.cadbane.search.StringSearcher;
 
-	public static final int HYP_FIND_ALL_OCCURANCES = 0;
-	public static final int HYP_FIND_IN_LAYOUT = 1;
+public class StringHyperlink extends AbstractHyperlink {
 
 	private final IRegion targetRegion;
 	private final String stringName;
@@ -33,10 +32,10 @@ public class StringHyperlink extends AbstractHyperlink {
 	@Override
 	public String getHyperlinkText() {
 		switch (hyperlinkType) {
-		case HYP_FIND_ALL_OCCURANCES:
+		case StringSearcher.FIND_ALL_OCCURANCES:
 			return "Find all occurances";
 
-		case HYP_FIND_IN_LAYOUT:
+		case StringSearcher.FIND_IN_LAYOUT:
 			return "Find in layout";
 
 		default:
@@ -46,7 +45,8 @@ public class StringHyperlink extends AbstractHyperlink {
 
 	@Override
 	public void open() {
-		System.out.println(stringName + hyperlinkType);
+		StringSearcher searcher = new StringSearcher(stringName, project, hyperlinkType);
+		searcher.search();
 	}
 
 }

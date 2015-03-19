@@ -16,6 +16,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PlatformUI;
 
+import com.andromeda.cadbane.search.StringSearcher;
 import com.andromeda.utility.logging.WSConsole;
 
 public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
@@ -54,8 +55,8 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 			IRegion targetRegion = new Region(lineRegion.getOffset() + index, stringName.length());
 			if (targetRegion != null) {
 				if ((targetRegion.getOffset() <= offset) && (targetRegion.getOffset() + targetRegion.getLength()) > offset) {
-					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringHyperlink.HYP_FIND_ALL_OCCURANCES));
-					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringHyperlink.HYP_FIND_IN_LAYOUT));
+					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringSearcher.FIND_ALL_OCCURANCES));
+					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringSearcher.FIND_IN_LAYOUT));
 				}
 			}
 		}
