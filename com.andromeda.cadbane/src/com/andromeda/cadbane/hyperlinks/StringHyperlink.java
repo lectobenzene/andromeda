@@ -5,11 +5,21 @@ import org.eclipse.jface.text.IRegion;
 
 import com.andromeda.cadbane.search.StringSearcher;
 
+/**
+ * Hyperlink when string resource is clicked in string.xml or any other xml
+ * 
+ * @author tsaravana
+ *
+ */
 public class StringHyperlink extends AbstractHyperlink {
 
 	private final IRegion targetRegion;
+
+	/** the string to search */
 	private final String stringName;
 	private final IProject project;
+
+	/** the type of hyperlink, whether layout or all occurrences */
 	private int hyperlinkType;
 
 	public StringHyperlink(IRegion region, String stringName, IProject project, int hyperlinkType) {
@@ -32,8 +42,8 @@ public class StringHyperlink extends AbstractHyperlink {
 	@Override
 	public String getHyperlinkText() {
 		switch (hyperlinkType) {
-		case StringSearcher.FIND_ALL_OCCURANCES:
-			return "Find all occurances";
+		case StringSearcher.FIND_ALL_OCCURRENCES:
+			return "Find all occurrences";
 
 		case StringSearcher.FIND_IN_LAYOUT:
 			return "Find in layout";

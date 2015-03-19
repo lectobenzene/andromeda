@@ -15,14 +15,30 @@ import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
 
 import com.andromeda.utility.logging.WSConsole;
 
+/**
+ * Holds methods to do a search. Currently supports only string resource. Should
+ * make this more generic to support all sorts of resources
+ * 
+ * @author tsaravana
+ *
+ */
 public class StringSearcher {
 
+	/** the array that holds the results of the local search of id's */
 	private List<String> results;
+
+	/** current project that is used for getting the scope */
 	private IProject project;
+
+	/** the string to search */
 	private String stringToSearch;
+
+	/** the type of search, all occurrences or just in layout */
 	private int searchType;
-	
-	public static final int FIND_ALL_OCCURANCES = 0;
+
+	/** Searches in both layout and java. Searches everywhere */
+	public static final int FIND_ALL_OCCURRENCES = 0;
+	/** Searches only in the layout */
 	public static final int FIND_IN_LAYOUT = 1;
 
 	public StringSearcher(String stringToSearch, IProject project, int searchType) {
@@ -31,45 +47,67 @@ public class StringSearcher {
 		this.searchType = searchType;
 	}
 
+	/**
+	 * Performs the internal search if searchType is All Occurrences, and then
+	 * does a UI search.
+	 */
 	public void search() {
-		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(new IResource[] { project }, new String[] { "*.xml" }, false);
-		StringSearchQuery query = new StringSearchQuery(getIdResults(), scope, Pattern.compile(stringToSearch));
-		query.run(null);
+		FileTextSearchScope scope;
 
+		// Don't perform the internal search if search type is Layout only.
+		if (searchType == StringSearcher.FIND_ALL_OCCURRENCES) {
+			// Scope to search the id from string in layout
+			scope = FileTextSearchScope.newSearchScope(new IResource[] { project }, new String[] { "*.xml" }, false);
+			StringSearchQuery query = new StringSearchQuery(getResults(), scope, Pattern.compile(stringToSearch));
+			query.run(null);
+		}
+
+		// Scope to search every java and xml file
 		scope = FileTextSearchScope.newSearchScope(new IResource[] { project }, new String[] { "*.xml", "*.java" }, false);
 
 		String expressionToSearch = getExpressionToSearch();
-		WSConsole.d("expressionToSearch = "+expressionToSearch);
+		WSConsole.d("expressionToSearch = " + expressionToSearch);
+
 		runUISearch(scope, expressionToSearch);
-
-		// FIXME To debug
-		for (String string : results) {
-			System.out.println("ID RESULTS - " + string);
-		}
-
 	}
 
+	/**
+	 * Constructs the regEx expression that has to be searched finally using the
+	 * default UI functionality
+	 * 
+	 * @return the regEx expression that has to be searched
+	 */
 	private String getExpressionToSearch() {
 		StringBuilder builder = new StringBuilder();
 
-		if(searchType == FIND_IN_LAYOUT){
+		// TODO Should refactor this code to make it more efficient.
+		if (searchType == FIND_IN_LAYOUT) {
 			// Only the layouts
-			builder.append("(").append("@string/").append(stringToSearch).append(")");			
-		}else if(searchType == FIND_ALL_OCCURANCES){
+			builder.append("(").append("@string/").append(stringToSearch).append(")");
+		} else if (searchType == FIND_ALL_OCCURRENCES) {
 			builder.append("(").append("@string/").append(stringToSearch).append(")");
 			// Add the Java version also
 			builder.append("|").append("(").append("R.string.").append(stringToSearch).append(")");
 			// Add the ID's also to the search bucket
-			for (String id : results) {
+			for (String id : getResults()) {
 				builder.append("|").append("(").append(id).append(")");
 			}
 		}
 
 		// Clear the results once it is used
-		results.clear();
+		getResults().clear();
 		return builder.toString();
 	}
 
+	/**
+	 * Searches for the regEx expression in the scope provided using the default
+	 * Eclipse File search (UI search)
+	 * 
+	 * @param scope
+	 *            The scope of search
+	 * @param expressionToSearch
+	 *            the regEx expression that has to be searched
+	 */
 	private void runUISearch(FileTextSearchScope scope, String expressionToSearch) {
 		// Run the UI search query
 		try {
@@ -103,7 +141,13 @@ public class StringSearcher {
 		}
 	}
 
-	public List<String> getIdResults() {
+	/**
+	 * To obtain the results array, both to send as input and to fetch
+	 * information back
+	 * 
+	 * @return the results array
+	 */
+	public List<String> getResults() {
 		if (results == null) {
 			results = new ArrayList<String>();
 		}

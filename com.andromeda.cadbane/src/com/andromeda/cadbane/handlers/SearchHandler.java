@@ -13,9 +13,18 @@ import org.eclipse.ui.PlatformUI;
 
 import com.andromeda.cadbane.search.StringSearcher;
 
+/**
+ * Handler to search for a given text, currently a String.
+ * 
+ * @author tsaravana
+ *
+ */
 public class SearchHandler extends AbstractHandler {
 
+	/** current project to get the search scope */
 	private IProject project;
+
+	/** The string to search */
 	private String searchString;
 
 	@Override
@@ -35,9 +44,11 @@ public class SearchHandler extends AbstractHandler {
 		}
 
 		if (project != null) {
-			// Get the searchString from USER
+			// Get the searchString from USER probably from the dialog or remove
+			// the
 			searchString = "npi_please_search";
-			StringSearcher searcher = new StringSearcher(searchString, project, StringSearcher.FIND_ALL_OCCURANCES);
+
+			StringSearcher searcher = new StringSearcher(searchString, project, StringSearcher.FIND_ALL_OCCURRENCES);
 			searcher.search();
 		}
 
