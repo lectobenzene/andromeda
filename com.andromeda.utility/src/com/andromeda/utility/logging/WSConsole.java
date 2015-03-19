@@ -12,8 +12,16 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import com.andromeda.utility.Activator;
 import com.andromeda.utility.preferences.AndromedaPreferenceConstants;
 
+/**
+ * Logging mechanism. Logs everything if the user enables this in the
+ * preferences.
+ * 
+ * @author tsaravana
+ *
+ */
 public class WSConsole {
 
+	/** name of the console */
 	private static final String PRODUCT_NAME = "Andromeda";
 	private static MessageConsole console;
 	private static MessageConsoleStream out;
@@ -98,6 +106,7 @@ public class WSConsole {
 	public static void e(Exception exception) {
 		if (isError) {
 			getMessageStream();
+			e("Exception Message : " + exception.getMessage());
 			out.println("[ERROR] : " + "----------------- EXCEPTION STACK TRACE -----------------");
 			exception.printStackTrace(new PrintStream(out));
 			out.println("[ERROR] : " + "----------------- EXCEPTION STACK TRACE -----------------");

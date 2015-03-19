@@ -9,6 +9,12 @@ import org.eclipse.core.runtime.Path;
 
 import com.andromeda.utility.logging.WSConsole;
 
+/**
+ * Utility that holds everything that relates to Resources
+ * 
+ * @author tsaravana
+ *
+ */
 public class UtilResource {
 
 	/**
@@ -29,7 +35,6 @@ public class UtilResource {
 		try {
 			resource.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} catch (CoreException e) {
-			WSConsole.e(e.getMessage());
 			WSConsole.e(e);
 		}
 	}
@@ -53,7 +58,6 @@ public class UtilResource {
 		try {
 			resource.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} catch (CoreException e) {
-			WSConsole.e(e.getMessage());
 			WSConsole.e(e);
 		}
 	}
@@ -84,7 +88,7 @@ public class UtilResource {
 			return ResourcesPlugin.getWorkspace().getRoot().getFolder(fullPath);
 		}
 	}
-	
+
 	/**
 	 * Returns the file name without the extension part
 	 * 

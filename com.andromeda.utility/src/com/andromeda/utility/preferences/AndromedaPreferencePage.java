@@ -16,15 +16,24 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.andromeda.utility.Activator;
 import com.andromeda.utility.logging.WSConsole;
 
+/**
+ * The preference page that is the home page and the one that hold the error
+ * logging switches.
+ * 
+ * @author tsaravana
+ *
+ */
 public class AndromedaPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+	private static final String PREFERENCE_DESCRIPTION = "Set the global preferences.";
+	private static final String PREFERENCE_TITLE = "Andromeda Preferences";
 	private Group grpDebugger;
 	private Button btnDebug;
 	private Button btnError;
 	private Button btnInfo;
 
 	public AndromedaPreferencePage() {
-		setTitle("Andromeda Preferences");
-		setDescription("Set the global preferences.");
+		setTitle(PREFERENCE_TITLE);
+		setDescription(PREFERENCE_DESCRIPTION);
 	}
 
 	@Override

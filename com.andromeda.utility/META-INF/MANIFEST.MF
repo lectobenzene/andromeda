@@ -14,6 +14,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.andromeda.utility,
  com.andromeda.utility.logging,
  com.andromeda.utility.preferences,
- com.andromeda.utility.ui,
  com.andromeda.utility.utils
 Bundle-ClassPath: bin/
