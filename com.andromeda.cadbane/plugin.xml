@@ -30,5 +30,16 @@
             commandId="com.andromeda.cadbane.search">
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="com.andromeda.cadbane.hyperlinks.StringHyperlinkDetector"
+            description="detects the string tag in android values folder"
+            id="com.andromeda.cadbane.hyperlinkDetector1"
+            name="Anromeda android"
+            targetId="org.eclipse.ui.DefaultTextEditor">
+      </hyperlinkDetector>
+   </extension>
 
 </plugin>

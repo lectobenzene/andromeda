@@ -19,21 +19,19 @@ public class StringSearchQuery {
 	private FileTextSearchScope scope;
 	private Pattern pattern;
 
-	public StringSearchQuery(List<String> results, FileTextSearchScope scope,
-			Pattern pattern) {
+	public StringSearchQuery(List<String> results, FileTextSearchScope scope, Pattern pattern) {
 		this.results = results;
 		this.scope = scope;
 		this.pattern = pattern;
 	}
 
-	private final static class TextSearchResultCollector extends
-			TextSearchRequestor {
+	private final static class StringTextSearchResultCollector extends TextSearchRequestor {
 
 		private static final String STRINGS = "strings.xml";
 		private List<String> cachedMatches;
 		private List<String> results;
 
-		private TextSearchResultCollector(List<String> results) {
+		private StringTextSearchResultCollector(List<String> results) {
 			this.results = results;
 		}
 
@@ -52,23 +50,14 @@ public class StringSearchQuery {
 			return false;
 		}
 
-		public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor)
-				throws CoreException {
+		public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor) throws CoreException {
 			// Find the "id" from the view
-			System.out.println("FileNAME : "
-					+ matchRequestor.getFile().getName());
 			int matchOffset = matchRequestor.getMatchOffset();
-			System.out.println("MatchOFFSET : " + matchOffset);
-			System.out.println("MatchLENGTH : "
-					+ matchRequestor.getMatchLength());
 			int startIndex = indexOfChar(matchRequestor, '>', true);
 			int endIndex = indexOfChar(matchRequestor, '<', false);
 			String contents = getContents(matchRequestor, startIndex, endIndex);
-			System.out.println("CONTENTS\n" + contents);
-			Pattern patternToFind = Pattern
-					.compile("android:id=\"@(?:\\+)?id/([^\"]*)\"");
+			Pattern patternToFind = Pattern.compile("android:id=\"@(?:\\+)?id/([^\"]*)\"");
 			String idString = findPatternFromString(contents, patternToFind);
-			System.out.println("ID_STRING found :" + idString);
 			if (idString != null && idString.length() != 0) {
 				// Process the idResults to add the R.id substring
 				cachedMatches.add(processIdString(idString));
@@ -77,11 +66,10 @@ public class StringSearchQuery {
 		}
 
 		private String processIdString(String idString) {
-			return "R.id."+idString;
+			return "R.id." + idString;
 		}
 
-		private String findPatternFromString(String contents,
-				Pattern patternToFind) {
+		private String findPatternFromString(String contents, Pattern patternToFind) {
 
 			Matcher matcher = patternToFind.matcher(contents);
 			String group = null;
@@ -92,8 +80,7 @@ public class StringSearchQuery {
 			return group;
 		}
 
-		private int indexOfChar(TextSearchMatchAccess matchRequestor,
-				char charToFind, boolean shouldSearchBackward) {
+		private int indexOfChar(TextSearchMatchAccess matchRequestor, char charToFind, boolean shouldSearchBackward) {
 			int matchOffset = matchRequestor.getMatchOffset();
 			while (charToFind != matchRequestor.getFileContentChar(matchOffset)) {
 				if (shouldSearchBackward) {
@@ -105,8 +92,7 @@ public class StringSearchQuery {
 			return matchOffset;
 		}
 
-		private static String getContents(TextSearchMatchAccess matchRequestor,
-				int start, int end) {
+		private static String getContents(TextSearchMatchAccess matchRequestor, int start, int end) {
 			StringBuffer buf = new StringBuffer();
 			for (int i = start; i < end; i++) {
 				char ch = matchRequestor.getFileContentChar(i);
@@ -138,8 +124,7 @@ public class StringSearchQuery {
 	public void run(IProgressMonitor monitor) {
 		// clear the previous results
 		results.clear();
-		TextSearchRequestor requestor = new TextSearchResultCollector(results);
-		TextSearchEngine.create().search(scope, requestor,
-				pattern, monitor);
+		TextSearchRequestor requestor = new StringTextSearchResultCollector(results);
+		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 	}
 }
