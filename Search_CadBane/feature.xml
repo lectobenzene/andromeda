@@ -6,7 +6,10 @@
       provider-name="Saravana">
 
    <description>
-      Search, codenamed CadBane is a tool that is specifically designed for TODO ...
+      Search, codenamed CadBane is a tool that is specifically designed for for Android development. 
+It includes the following  features :
+
+1) Searches for all the usage of a particular string in strings.xml
    </description>
 
    <copyright>
