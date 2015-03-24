@@ -70,16 +70,17 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 					// Show two actions when user hovers over the link
 					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringSearcher.FIND_ALL_OCCURRENCES));
 					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringSearcher.FIND_IN_LAYOUT));
+					return hyperlinks.toArray(new IHyperlink[2]);
 				}
 			}
 		}
-
-		// return the hyperlinks array
-		if (hyperlinks.isEmpty()) {
-			return null;
-		} else {
-			return hyperlinks.toArray(new IHyperlink[2]);
-		}
+		return null;
+//		// return the hyperlinks array
+//		if (hyperlinks.isEmpty()) {
+//			return null;
+//		} else {
+//			return hyperlinks.toArray(new IHyperlink[2]);
+//		}
 	}
 
 }

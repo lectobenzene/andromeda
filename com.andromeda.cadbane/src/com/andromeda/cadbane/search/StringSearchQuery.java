@@ -1,7 +1,9 @@
 package com.andromeda.cadbane.search;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +15,8 @@ import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
+import com.andromeda.utility.utils.UtilResource;
+
 /**
  * Class that holds methods to run the local headless search
  * 
@@ -22,7 +26,7 @@ import org.eclipse.search.ui.text.FileTextSearchScope;
 public class StringSearchQuery {
 
 	/** the array that holds the results of the local search of id's */
-	private final List<String> results;
+	private final Map<String, List<String>> results;
 
 	/** The scope to search in */
 	private FileTextSearchScope scope;
@@ -30,8 +34,8 @@ public class StringSearchQuery {
 	/** The regEx pattern that has to be searched */
 	private Pattern pattern;
 
-	public StringSearchQuery(List<String> results, FileTextSearchScope scope, Pattern pattern) {
-		this.results = results;
+	public StringSearchQuery(Map<String, List<String>> map, FileTextSearchScope scope, Pattern pattern) {
+		this.results = map;
 		this.scope = scope;
 		this.pattern = pattern;
 	}
@@ -49,15 +53,15 @@ public class StringSearchQuery {
 		private static final Pattern PATTERN_TO_FIND = Pattern.compile("android:id=\"@(?:\\+)?id/([^\"]*)\"");
 
 		/** the array that is manipulated till the search ends */
-		private List<String> cachedMatches;
+		private Map<String, List<String>> cachedMatches;
 
 		/**
 		 * the actual array that is filled with the contents from the cached
 		 * array once search ends
 		 */
-		private List<String> results;
+		private Map<String, List<String>> results;
 
-		private StringTextSearchResultCollector(List<String> results) {
+		private StringTextSearchResultCollector(Map<String, List<String>> results) {
 			this.results = results;
 		}
 
@@ -79,21 +83,38 @@ public class StringSearchQuery {
 
 			String idString = findPatternFromString(contents, PATTERN_TO_FIND);
 			if (idString != null && idString.length() != 0) {
+
 				// Process the idResults to add the R.id substring
-				cachedMatches.add(processIdString(idString));
+				String processedIdString = processString(idString,StringSearcher.R_ID);
+				System.out.println("|::|ID = "+processedIdString);
+				String processedLayoutString = processString(UtilResource.getFileNameWithoutExtension(matchRequestor.getFile().getName()), StringSearcher.R_LAYOUT);
+				System.out.println("|::|LA = "+processedLayoutString);
+				
+				List<String> list = cachedMatches.get(processedIdString);
+				if(list == null){
+					List<String> mList = new ArrayList<String>();
+					mList.add(processedLayoutString);
+					cachedMatches.put(processedIdString, mList);
+				}else{
+					cachedMatches.get(processedIdString).add(processedLayoutString);
+				}
+
 			}
 			return true;
 		}
 
 		/**
-		 * Adds the R.id to the given string.
+		 * Adds the type to the given string.
 		 * 
-		 * @param idString
+		 * @param string
 		 *            the string
-		 * @return returns the ID of the string
+		 * 
+		 * @param type
+		 *            the type of the string
+		 * @return returns the type of the string
 		 */
-		private String processIdString(String idString) {
-			return "R.id." + idString;
+		private String processString(String string, String type) {
+			return type + string;
 		}
 
 		private String findPatternFromString(String contents, Pattern patternToFind) {
@@ -143,12 +164,12 @@ public class StringSearchQuery {
 
 		public void beginReporting() {
 			// Clear everything
-			cachedMatches = new ArrayList<String>();
+			cachedMatches = new HashMap<String, List<String>>();
 
 		}
 
 		public void endReporting() {
-			results.addAll(cachedMatches);
+			results.putAll(cachedMatches);
 			cachedMatches.clear();
 			cachedMatches = null;
 		}
@@ -162,8 +183,6 @@ public class StringSearchQuery {
 	 *            the progress monitor
 	 */
 	public void run(IProgressMonitor monitor) {
-		// clear the previous results
-		results.clear();
 		TextSearchRequestor requestor = new StringTextSearchResultCollector(results);
 		// The code that does the headless search
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
