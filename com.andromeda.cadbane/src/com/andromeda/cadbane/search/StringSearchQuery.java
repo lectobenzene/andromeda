@@ -85,17 +85,18 @@ public class StringSearchQuery {
 			if (idString != null && idString.length() != 0) {
 
 				// Process the idResults to add the R.id substring
-				String processedIdString = processString(idString,StringSearcher.R_ID);
-				System.out.println("|::|ID = "+processedIdString);
-				String processedLayoutString = processString(UtilResource.getFileNameWithoutExtension(matchRequestor.getFile().getName()), StringSearcher.R_LAYOUT);
-				System.out.println("|::|LA = "+processedLayoutString);
-				
+				String processedIdString = processString(idString, StringSearcher.R_ID);
+				System.out.println("|::|ID = " + processedIdString);
+				String processedLayoutString = processString(UtilResource.getFileNameWithoutExtension(matchRequestor.getFile().getName()),
+						StringSearcher.R_LAYOUT);
+				System.out.println("|::|LA = " + processedLayoutString);
+
 				List<String> list = cachedMatches.get(processedIdString);
-				if(list == null){
+				if (list == null) {
 					List<String> mList = new ArrayList<String>();
 					mList.add(processedLayoutString);
 					cachedMatches.put(processedIdString, mList);
-				}else{
+				} else {
 					cachedMatches.get(processedIdString).add(processedLayoutString);
 				}
 

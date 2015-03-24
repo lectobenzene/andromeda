@@ -2,7 +2,6 @@ package com.andromeda.cadbane.hyperlinks;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -73,7 +72,7 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 				}
 			}
 		}
-		
+
 		// Matches the Id tag
 		matcher.usePattern(IdHyperlink.patternIdHyperlink);
 		while (matcher.find()) {
@@ -90,11 +89,10 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 				}
 			}
 		}
-		
+
 		// Nothing got matched
 		return null;
 
-		
 	}
 
 }

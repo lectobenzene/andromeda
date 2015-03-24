@@ -16,7 +16,7 @@ import com.andromeda.cadbane.search.StringSearcher;
 public class StringHyperlink extends AbstractHyperlink {
 
 	public static final Pattern patternStringHyperlink = Pattern.compile("<string name=\"([^\"]*)\">");
-	
+
 	private final IRegion targetRegion;
 
 	/** the string to search */

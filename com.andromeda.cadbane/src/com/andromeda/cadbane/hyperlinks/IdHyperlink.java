@@ -25,7 +25,7 @@ public class IdHyperlink extends AbstractHyperlink {
 	/** the id to search */
 	private final String idName;
 	private final IProject project;
-	
+
 	private final IFile file;
 
 	public IdHyperlink(IRegion region, String idName, IProject project, IFile file) {
@@ -54,8 +54,8 @@ public class IdHyperlink extends AbstractHyperlink {
 	public void open() {
 		StringSearcher searcher = new StringSearcher(idName, project, StringSearcher.FIND_ALL_OCCURRENCES);
 		String layoutName = UtilResource.getFileNameWithoutExtension(file.getName());
-		
-		searcher.search(StringSearcher.R_ID+idName, StringSearcher.R_LAYOUT+layoutName);
+
+		searcher.search(StringSearcher.R_ID + idName, StringSearcher.R_LAYOUT + layoutName);
 	}
 
 }
