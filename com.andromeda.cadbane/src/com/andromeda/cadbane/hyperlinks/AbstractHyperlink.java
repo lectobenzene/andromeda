@@ -1,5 +1,7 @@
 package com.andromeda.cadbane.hyperlinks;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 
 /**
@@ -10,4 +12,5 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
  */
 public abstract class AbstractHyperlink implements IHyperlink {
 
+	
 }

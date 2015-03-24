@@ -1,6 +1,8 @@
 package com.andromeda.utility.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -112,4 +114,34 @@ public class UtilResource {
 		String[] split = fileName.split("\\.");
 		return split[split.length - 1];
 	}
+
+	/**
+	 * Searches the file for the string and returns true if found
+	 * 
+	 * @param searchString
+	 *            the string to find
+	 * @param file
+	 *            the file to search in
+	 * @return true if found, false otherwise
+	 */
+	public static boolean searchFile(String searchString, File file) {
+		Scanner scanner = null;
+		try {
+			scanner = new Scanner(file);
+			while (scanner.hasNextLine()) {
+				String nextLine = scanner.nextLine();
+				if (nextLine.contains(searchString)) {
+					WSConsole.d("searchString found in the nextLine = " + nextLine);
+					return true;
+				}
+			}
+		} catch (FileNotFoundException e) {
+			WSConsole.e(e);
+		} finally {
+			scanner.close();
+		}
+		return false;
+
+	}
+
 }

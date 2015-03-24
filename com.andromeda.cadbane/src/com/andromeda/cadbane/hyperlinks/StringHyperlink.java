@@ -1,5 +1,7 @@
 package com.andromeda.cadbane.hyperlinks;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IRegion;
 
@@ -13,6 +15,8 @@ import com.andromeda.cadbane.search.StringSearcher;
  */
 public class StringHyperlink extends AbstractHyperlink {
 
+	public static final Pattern patternStringHyperlink = Pattern.compile("<string name=\"([^\"]*)\">");
+	
 	private final IRegion targetRegion;
 
 	/** the string to search */

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
@@ -29,6 +28,7 @@ import org.eclipse.search.ui.text.TextSearchQueryProvider;
 import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
 
 import com.andromeda.utility.logging.WSConsole;
+import com.andromeda.utility.utils.UtilResource;
 
 /**
  * Holds methods to do a search. Currently supports only string resource. Should
@@ -77,7 +77,7 @@ public class StringSearcher implements ISearchResultListener {
 	public void search() {
 
 		// clear the result object when starting a search
-		getResults().clear();
+		flushResults();
 
 		FileTextSearchScope scope;
 
@@ -98,6 +98,22 @@ public class StringSearcher implements ISearchResultListener {
 		runUISearch(scope, expressionToSearch);
 	}
 
+	public void search(String id, String layout) {
+
+		// clear the result object when starting a search
+		flushResults();
+
+		// Scope to search every java and xml file
+		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(new IResource[] { project }, new String[] { "*.java" }, false);
+
+		// Construct the result object for the searchResult listener
+		ArrayList<String> list = new ArrayList<String>();
+		list.add(layout);
+		getResults().put(id, list);
+
+		runUISearch(scope, escapeRegex(id));
+	}
+
 	/**
 	 * Constructs the regEx expression that has to be searched finally using the
 	 * default UI functionality
@@ -114,14 +130,25 @@ public class StringSearcher implements ISearchResultListener {
 		} else if (searchType == FIND_ALL_OCCURRENCES) {
 			builder.append("(").append("@string/").append(stringToSearch).append(")");
 			// Add the Java version also
-			builder.append("|").append("(").append(R_STRING).append(stringToSearch).append(")");
+			builder.append("|").append("(").append(escapeRegex(R_STRING)).append(stringToSearch).append(")");
 			// Add the ID's also to the search bucket
 			for (String id : getResults().keySet()) {
-				builder.append("|").append("(").append(id).append(")");
+				builder.append("|").append("(").append(escapeRegex(id)).append(")");
 			}
 		}
 
 		return builder.toString();
+	}
+
+	/**
+	 * Escapes all the regex operators in the string
+	 * 
+	 * @param rString
+	 *            the string to change
+	 * @return modified string
+	 */
+	private String escapeRegex(String rString) {
+		return rString.replaceAll("\\.", "\\\\.");
 	}
 
 	/**
@@ -185,6 +212,12 @@ public class StringSearcher implements ISearchResultListener {
 		return results;
 	}
 
+	public void flushResults() {
+		if (results != null) {
+			results.clear();
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -198,8 +231,6 @@ public class StringSearcher implements ISearchResultListener {
 	 */
 	@Override
 	public void searchResultChanged(SearchResultEvent e) {
-		System.out.println("search result changed");
-		System.out.println("e class = " + e.getClass());
 
 		// Get a reference to the search result so we can remove the matches
 		AbstractTextSearchResult result = null;
@@ -211,7 +242,6 @@ public class StringSearcher implements ISearchResultListener {
 		if (e instanceof MatchEvent) {
 			// Get the matches
 			Match[] matches = ((MatchEvent) e).getMatches();
-			System.out.println(e.getSource().getClass());
 			for (Match match : matches) {
 
 				// Get the file
@@ -242,7 +272,7 @@ public class StringSearcher implements ISearchResultListener {
 				if (layoutStrings != null) {
 					shouldRemoveMatch = REMOVE_MATCH_NOT_FOUND;
 					for (String layoutString : layoutStrings) {
-						if (searchFile(layoutString, file.getLocation().toFile())) {
+						if (UtilResource.searchFile(layoutString, file.getLocation().toFile())) {
 							shouldRemoveMatch = REMOVE_MATCH_FOUND;
 						}
 					}
@@ -252,35 +282,6 @@ public class StringSearcher implements ISearchResultListener {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Searches the file for the string and returns true if found
-	 * 
-	 * @param layoutString
-	 *            the string to find
-	 * @param file
-	 *            the file to search in
-	 * @return true if found, false otherwise
-	 */
-	private boolean searchFile(String layoutString, File file) {
-		Scanner scanner = null;
-		try {
-			scanner = new Scanner(file);
-			while (scanner.hasNextLine()) {
-				String nextLine = scanner.nextLine();
-				if (nextLine.contains(layoutString)) {
-					WSConsole.d("layoutString found in the nextLine = " + nextLine);
-					return true;
-				}
-			}
-		} catch (FileNotFoundException e) {
-			WSConsole.e(e);
-		} finally {
-			scanner.close();
-		}
-		return false;
-
 	}
 
 	/**

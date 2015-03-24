@@ -54,9 +54,8 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 
 		ArrayList<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
 
-		// Define the pattern
-		Pattern patternService = Pattern.compile("<string name=\"([^\"]*)\">");
-		Matcher matcher = patternService.matcher(matchLine);
+		// Matches the String tag
+		Matcher matcher = StringHyperlink.patternStringHyperlink.matcher(matchLine);
 
 		while (matcher.find()) {
 			// Get the match.
@@ -74,13 +73,28 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 				}
 			}
 		}
+		
+		// Matches the Id tag
+		matcher.usePattern(IdHyperlink.patternIdHyperlink);
+		while (matcher.find()) {
+			// Get the match.
+			stringName = matcher.group(1);
+
+			// Boiler code. Same for all scenarios
+			int index = matchLine.indexOf(stringName);
+			IRegion targetRegion = new Region(lineRegion.getOffset() + index, stringName.length());
+			if (targetRegion != null) {
+				if ((targetRegion.getOffset() <= offset) && (targetRegion.getOffset() + targetRegion.getLength()) > offset) {
+					hyperlinks.add(new IdHyperlink(targetRegion, matcher.group(2), project, file));
+					return hyperlinks.toArray(new IHyperlink[1]);
+				}
+			}
+		}
+		
+		// Nothing got matched
 		return null;
-//		// return the hyperlinks array
-//		if (hyperlinks.isEmpty()) {
-//			return null;
-//		} else {
-//			return hyperlinks.toArray(new IHyperlink[2]);
-//		}
+
+		
 	}
 
 }
