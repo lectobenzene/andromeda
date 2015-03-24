@@ -13,6 +13,12 @@
                   commandId="com.andromeda.cadbane.search"
                   style="push">
             </command>
+            <visibleWhen
+                  checkEnabled="false">
+               <instanceof
+                     value="org.eclipse.core.resources.IFileState">
+               </instanceof>
+            </visibleWhen>
          </menu>
       </menuContribution>
    </extension>
