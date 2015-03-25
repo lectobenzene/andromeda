@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: CadBane
+Bundle-Name: Andromeda_CadBane
 Bundle-SymbolicName: com.andromeda.cadbane;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.andromeda.cadbane.Activator

@@ -6,10 +6,18 @@
       provider-name="Saravana">
 
    <description>
-      Search, codenamed CadBane is a tool that is specifically designed for for Android development. 
+      Search(CadBane) is a tool that is specifically designed
+for for Android development. 
 It includes the following  features :
 
 1) Searches for all the usage of a particular string in strings.xml
+both in the layout as well as its occurances in the java files.
+
+2) Searches not only the usage of the string, but also the occurance
+of the view in the java files where the string is used.
+
+3) Searches the occurance of the view (from the layout) in the
+java files.
    </description>
 
    <copyright>
