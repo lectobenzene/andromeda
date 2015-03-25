@@ -15,6 +15,7 @@ import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
 
+import com.andromeda.utility.logging.WSConsole;
 import com.andromeda.utility.utils.UtilResource;
 
 /**
@@ -80,16 +81,19 @@ public class StringSearchQuery {
 			int startIndex = indexOfChar(matchRequestor, '>', true);
 			int endIndex = indexOfChar(matchRequestor, '<', false);
 			String contents = getContents(matchRequestor, startIndex, endIndex);
+			WSConsole.d("matched contents : " + contents);
 
 			String idString = findPatternFromString(contents, PATTERN_TO_FIND);
 			if (idString != null && idString.length() != 0) {
 
 				// Process the idResults to add the R.id substring
 				String processedIdString = processString(idString, StringSearcher.R_ID);
-				System.out.println("|::|ID = " + processedIdString);
+
 				String processedLayoutString = processString(UtilResource.getFileNameWithoutExtension(matchRequestor.getFile().getName()),
 						StringSearcher.R_LAYOUT);
-				System.out.println("|::|LA = " + processedLayoutString);
+
+				WSConsole.d("processedIdString = " + processedIdString);
+				WSConsole.d("processedLayoutString = " + processedLayoutString);
 
 				List<String> list = cachedMatches.get(processedIdString);
 				if (list == null) {
@@ -184,6 +188,7 @@ public class StringSearchQuery {
 	 *            the progress monitor
 	 */
 	public void run(IProgressMonitor monitor) {
+		WSConsole.d("Local headless search running");
 		TextSearchRequestor requestor = new StringTextSearchResultCollector(results);
 		// The code that does the headless search
 		TextSearchEngine.create().search(scope, requestor, pattern, monitor);

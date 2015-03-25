@@ -83,6 +83,8 @@ public class StringSearcher implements ISearchResultListener {
 
 		// Don't perform the internal search if search type is Layout only.
 		if (searchType == StringSearcher.FIND_ALL_OCCURRENCES) {
+			WSConsole.d("searchType = FIND_ALL_OCCURRENCES");
+			WSConsole.d("stringToSearch = " + stringToSearch);
 			// Scope to search the id from string in layout
 			scope = FileTextSearchScope.newSearchScope(new IResource[] { project }, new String[] { "*.xml" }, false);
 			StringSearchQuery query = new StringSearchQuery(getResults(), scope, Pattern.compile(stringToSearch));
@@ -102,6 +104,9 @@ public class StringSearcher implements ISearchResultListener {
 
 		// clear the result object when starting a search
 		flushResults();
+
+		WSConsole.d("search id = " + id);
+		WSConsole.d("search layout = " + layout);
 
 		// Scope to search every java and xml file
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(new IResource[] { project }, new String[] { "*.java" }, false);
@@ -161,6 +166,8 @@ public class StringSearcher implements ISearchResultListener {
 	 *            the regEx expression that has to be searched
 	 */
 	private void runUISearch(FileTextSearchScope scope, String expressionToSearch) {
+		WSConsole.d("UI Search is running");
+		WSConsole.d("expressionToSearch = " + expressionToSearch);
 		// Run the UI search query
 		try {
 			TextSearchQueryProvider preferred = TextSearchQueryProvider.getPreferred();
@@ -207,12 +214,14 @@ public class StringSearcher implements ISearchResultListener {
 	 */
 	public Map<String, List<String>> getResults() {
 		if (results == null) {
+			WSConsole.d("Result object created");
 			results = new HashMap<String, List<String>>();
 		}
 		return results;
 	}
 
 	public void flushResults() {
+		WSConsole.d("Results are flused");
 		if (results != null) {
 			results.clear();
 		}
@@ -278,6 +287,7 @@ public class StringSearcher implements ISearchResultListener {
 					}
 				}
 				if (shouldRemoveMatch == REMOVE_MATCH_NOT_FOUND) {
+					WSConsole.d("Match is removed");
 					result.removeMatch(match);
 				}
 			}

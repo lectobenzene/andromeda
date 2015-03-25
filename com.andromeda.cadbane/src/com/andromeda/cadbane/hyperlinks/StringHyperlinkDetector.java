@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -26,9 +25,6 @@ import com.andromeda.utility.logging.WSConsole;
  */
 public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 
-	/** the content to show as a hyperlink */
-	private String stringName;
-
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
 
@@ -36,10 +32,8 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 		IDocument document = textViewer.getDocument();
 		int offset = region.getOffset();
 
-		// Get the project for the search scope
 		IFile file = ((IFileEditorInput) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput())
 				.getFile();
-		IProject project = file.getProject();
 
 		IRegion lineRegion = null;
 		String matchLine = null;
@@ -51,48 +45,62 @@ public class StringHyperlinkDetector extends AbstractHyperlinkDetector {
 			WSConsole.e(e);
 		}
 
-		ArrayList<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
-
 		// Matches the String tag
 		Matcher matcher = StringHyperlink.patternStringHyperlink.matcher(matchLine);
-
-		while (matcher.find()) {
-			// Get the match.
-			stringName = matcher.group(1);
-
-			// Boiler code. Same for all scenarios
-			int index = matchLine.indexOf(stringName);
-			IRegion targetRegion = new Region(lineRegion.getOffset() + index, stringName.length());
-			if (targetRegion != null) {
-				if ((targetRegion.getOffset() <= offset) && (targetRegion.getOffset() + targetRegion.getLength()) > offset) {
-					// Show two actions when user hovers over the link
-					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringSearcher.FIND_ALL_OCCURRENCES));
-					hyperlinks.add(new StringHyperlink(targetRegion, stringName, project, StringSearcher.FIND_IN_LAYOUT));
-					return hyperlinks.toArray(new IHyperlink[2]);
-				}
-			}
-		}
+		IHyperlink[] hyperlinks = getHyperlink(matcher, offset, file, lineRegion, matchLine);
 
 		// Matches the Id tag
-		matcher.usePattern(IdHyperlink.patternIdHyperlink);
+		if (hyperlinks == null) {
+			matcher = matcher.usePattern(IdHyperlink.patternIdHyperlink);
+			hyperlinks = getHyperlink(matcher, offset, file, lineRegion, matchLine);
+		}
+
+		return hyperlinks;
+
+	}
+
+	/**
+	 * Get the array of hyperlinks to show
+	 * 
+	 * @param matcher
+	 *            the matcher of the regex
+	 * @param offset
+	 *            the hyperlink region offset
+	 * @param file
+	 *            the file from which the hyperlink was invoked
+	 * @param lineRegion
+	 *            the lineRegion
+	 * @param matchLine
+	 *            the line that got matched
+	 * @return the array of hyperlinks if matched, or null
+	 */
+	private IHyperlink[] getHyperlink(Matcher matcher, int offset, IFile file, IRegion lineRegion, String matchLine) {
+		ArrayList<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
 		while (matcher.find()) {
 			// Get the match.
-			stringName = matcher.group(1);
+			String name = matcher.group(1);
 
 			// Boiler code. Same for all scenarios
-			int index = matchLine.indexOf(stringName);
-			IRegion targetRegion = new Region(lineRegion.getOffset() + index, stringName.length());
+			int index = matchLine.indexOf(name);
+			IRegion targetRegion = new Region(lineRegion.getOffset() + index, name.length());
 			if (targetRegion != null) {
 				if ((targetRegion.getOffset() <= offset) && (targetRegion.getOffset() + targetRegion.getLength()) > offset) {
-					hyperlinks.add(new IdHyperlink(targetRegion, matcher.group(2), project, file));
-					return hyperlinks.toArray(new IHyperlink[1]);
+					String matchedRegexString = matcher.pattern().toString();
+					WSConsole.d("Hyperlink matched : " + matchedRegexString);
+					if (matchedRegexString.equalsIgnoreCase(StringHyperlink.patternStringHyperlink.toString())) {
+						// Show two actions when user hovers over the link
+						hyperlinks.add(new StringHyperlink(targetRegion, name, file.getProject(), StringSearcher.FIND_ALL_OCCURRENCES));
+						hyperlinks.add(new StringHyperlink(targetRegion, name, file.getProject(), StringSearcher.FIND_IN_LAYOUT));
+						return hyperlinks.toArray(new IHyperlink[2]);
+					} else if (matchedRegexString.equalsIgnoreCase(IdHyperlink.patternIdHyperlink.toString())) {
+						hyperlinks.add(new IdHyperlink(targetRegion, matcher.group(2), file.getProject(), file));
+						return hyperlinks.toArray(new IHyperlink[1]);
+					}
 				}
 			}
 		}
-
-		// Nothing got matched
+		// Didn't match anything
 		return null;
-
 	}
 
 }

@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IRegion;
 
 import com.andromeda.cadbane.search.StringSearcher;
+import com.andromeda.utility.logging.WSConsole;
 import com.andromeda.utility.utils.UtilResource;
 
 /**
@@ -19,7 +20,6 @@ public class IdHyperlink extends AbstractHyperlink {
 
 	public static final Pattern patternIdHyperlink = Pattern.compile("android:id=\"(@(?:\\+)?id/([^\"]*))\"");
 
-	// android:id="@+id/not_now_btn"
 	private final IRegion targetRegion;
 
 	/** the id to search */
@@ -52,6 +52,7 @@ public class IdHyperlink extends AbstractHyperlink {
 
 	@Override
 	public void open() {
+		WSConsole.d("IdHyperlink Open()");
 		StringSearcher searcher = new StringSearcher(idName, project, StringSearcher.FIND_ALL_OCCURRENCES);
 		String layoutName = UtilResource.getFileNameWithoutExtension(file.getName());
 

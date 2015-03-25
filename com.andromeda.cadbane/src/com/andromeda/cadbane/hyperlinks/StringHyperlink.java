@@ -6,6 +6,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IRegion;
 
 import com.andromeda.cadbane.search.StringSearcher;
+import com.andromeda.utility.logging.WSConsole;
 
 /**
  * Hyperlink when string resource is clicked in string.xml or any other xml
@@ -59,6 +60,7 @@ public class StringHyperlink extends AbstractHyperlink {
 
 	@Override
 	public void open() {
+		WSConsole.d("StringHyperlink Open()");
 		StringSearcher searcher = new StringSearcher(stringName, project, hyperlinkType);
 		searcher.search();
 	}
