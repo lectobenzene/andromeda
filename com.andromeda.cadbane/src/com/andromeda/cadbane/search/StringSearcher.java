@@ -165,7 +165,7 @@ public class StringSearcher implements ISearchResultListener {
 	 * @param expressionToSearch
 	 *            the regEx expression that has to be searched
 	 */
-	private void runUISearch(FileTextSearchScope scope, String expressionToSearch) {
+	private void runUISearch(final FileTextSearchScope scope, final String expressionToSearch) {
 		WSConsole.d("UI Search is running");
 		WSConsole.d("expressionToSearch = " + expressionToSearch);
 		// Run the UI search query
@@ -201,7 +201,9 @@ public class StringSearcher implements ISearchResultListener {
 			// Run the search
 			NewSearchUI.runQueryInBackground(createQuery);
 
-		} catch (IllegalArgumentException | CoreException e) {
+		} catch (IllegalArgumentException e) {
+			WSConsole.e(e);
+		} catch (CoreException e) {
 			WSConsole.e(e);
 		}
 	}
