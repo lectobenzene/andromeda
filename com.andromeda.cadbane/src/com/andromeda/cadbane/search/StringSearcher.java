@@ -59,6 +59,9 @@ public class StringSearcher implements ISearchResultListener {
 	public static final String R_STRING = "R.string.";
 	public static final String R_LAYOUT = "R.layout.";
 
+	/** Used to match exact word. Ideal scenario will be to use a LOOK_BEHIND, but this works too.*/
+	public static final String REGEX_WORD_END = "[^_\\w\\d]";
+	
 	/** Searches in both layout and java. Searches everywhere */
 	public static final int FIND_ALL_OCCURRENCES = 0;
 	/** Searches only in the layout */
@@ -116,7 +119,7 @@ public class StringSearcher implements ISearchResultListener {
 		list.add(layout);
 		getResults().put(id, list);
 
-		runUISearch(scope, escapeRegex(id));
+		runUISearch(scope, escapeRegex(id)+REGEX_WORD_END);
 	}
 
 	/**
@@ -131,14 +134,14 @@ public class StringSearcher implements ISearchResultListener {
 		// TODO Should refactor this code to make it more efficient.
 		if (searchType == FIND_IN_LAYOUT) {
 			// Only the layouts
-			builder.append("(").append("@string/").append(stringToSearch).append(")");
+			builder.append("(").append("@string/").append(stringToSearch).append(REGEX_WORD_END).append(")");
 		} else if (searchType == FIND_ALL_OCCURRENCES) {
-			builder.append("(").append("@string/").append(stringToSearch).append(")");
+			builder.append("(").append("@string/").append(stringToSearch).append(REGEX_WORD_END).append(")");
 			// Add the Java version also
-			builder.append("|").append("(").append(escapeRegex(R_STRING)).append(stringToSearch).append(")");
+			builder.append("|").append("(").append(escapeRegex(R_STRING)).append(stringToSearch).append(REGEX_WORD_END).append(")");
 			// Add the ID's also to the search bucket
 			for (String id : getResults().keySet()) {
-				builder.append("|").append("(").append(escapeRegex(id)).append(")");
+				builder.append("|").append("(").append(escapeRegex(id)).append(REGEX_WORD_END).append(")");
 			}
 		}
 
