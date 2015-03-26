@@ -59,9 +59,13 @@ public class StringSearcher implements ISearchResultListener {
 	public static final String R_STRING = "R.string.";
 	public static final String R_LAYOUT = "R.layout.";
 
-	/** Used to match exact word. Ideal scenario will be to use a LOOK_BEHIND, but this works too.*/
-	public static final String REGEX_WORD_END = "[^_\\w\\d]";
-	
+	public static final String AT_STRING = "@string/";
+
+	/**
+	 * Used to match exact word. Used as a Positive LOOK_AHEAD
+	 */
+	public static final String REGEX_WORD_END = "(?=[^_\\w\\d])";
+
 	/** Searches in both layout and java. Searches everywhere */
 	public static final int FIND_ALL_OCCURRENCES = 0;
 	/** Searches only in the layout */
@@ -90,7 +94,7 @@ public class StringSearcher implements ISearchResultListener {
 			WSConsole.d("stringToSearch = " + stringToSearch);
 			// Scope to search the id from string in layout
 			scope = FileTextSearchScope.newSearchScope(new IResource[] { project }, new String[] { "*.xml" }, false);
-			StringSearchQuery query = new StringSearchQuery(getResults(), scope, Pattern.compile(stringToSearch));
+			StringSearchQuery query = new StringSearchQuery(getResults(), scope, Pattern.compile(AT_STRING + stringToSearch));
 			query.run(null);
 		}
 
@@ -119,7 +123,7 @@ public class StringSearcher implements ISearchResultListener {
 		list.add(layout);
 		getResults().put(id, list);
 
-		runUISearch(scope, escapeRegex(id)+REGEX_WORD_END);
+		runUISearch(scope, escapeRegex(id) + REGEX_WORD_END);
 	}
 
 	/**
