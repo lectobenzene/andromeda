@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.search.ui.IQueryListener;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.ISearchResultListener;
@@ -31,13 +32,12 @@ import com.andromeda.utility.logging.WSConsole;
 import com.andromeda.utility.utils.UtilResource;
 
 /**
- * Holds methods to do a search. Currently supports only string resource. Should
- * make this more generic to support all sorts of resources
+ * Holds methods to do a search. Currently supports only string resource. Should make this more generic to support all sorts of resources
  * 
  * @author tsaravana
  *
  */
-public class StringSearcher implements ISearchResultListener {
+public class StringSearcher implements ISearchResultListener, IQueryListener {
 
 	public static final int REMOVE_MATCH_INITIALIZE = 0;
 	public static final int REMOVE_MATCH_NOT_FOUND = 1;
@@ -71,6 +71,10 @@ public class StringSearcher implements ISearchResultListener {
 	/** Searches only in the layout */
 	public static final int FIND_IN_LAYOUT = 1;
 
+	/** The matches that got removed in the first round of filtering, so to undergo a second round */
+	private List<Match> removedMatches;
+	private List<Match> layoutMatches;
+
 	public StringSearcher(String stringToSearch, IProject project, int searchType) {
 		this.stringToSearch = stringToSearch;
 		this.project = project;
@@ -78,8 +82,7 @@ public class StringSearcher implements ISearchResultListener {
 	}
 
 	/**
-	 * Performs the internal search if searchType is All Occurrences, and then
-	 * does a UI search.
+	 * Performs the internal search if searchType is All Occurrences, and then does a UI search.
 	 */
 	public void search() {
 
@@ -123,12 +126,13 @@ public class StringSearcher implements ISearchResultListener {
 		list.add(layout);
 		getResults().put(id, list);
 
-		runUISearch(scope, escapeRegex(id) + REGEX_WORD_END);
+		StringBuilder builder = (new StringBuilder()).append("(").append(escapeRegex(id)).append(REGEX_WORD_END).append(")").append("|").append("(")
+				.append(escapeRegex(layout)).append(REGEX_WORD_END).append(")");
+		runUISearch(scope, builder.toString());
 	}
 
 	/**
-	 * Constructs the regEx expression that has to be searched finally using the
-	 * default UI functionality
+	 * Constructs the regEx expression that has to be searched finally using the default UI functionality
 	 * 
 	 * @return the regEx expression that has to be searched
 	 */
@@ -164,8 +168,7 @@ public class StringSearcher implements ISearchResultListener {
 	}
 
 	/**
-	 * Searches for the regEx expression in the scope provided using the default
-	 * Eclipse File search (UI search)
+	 * Searches for the regEx expression in the scope provided using the default Eclipse File search (UI search)
 	 * 
 	 * @param scope
 	 *            The scope of search
@@ -203,8 +206,12 @@ public class StringSearcher implements ISearchResultListener {
 
 			ISearchQuery createQuery = preferred.createQuery(input);
 
+			removedMatches = new ArrayList<Match>();
+			layoutMatches = new ArrayList<Match>();
+
 			// Add listener for detect change in the search result
 			createQuery.getSearchResult().addListener(this);
+			NewSearchUI.addQueryListener(this);
 			// Run the search
 			NewSearchUI.runQueryInBackground(createQuery);
 
@@ -216,8 +223,7 @@ public class StringSearcher implements ISearchResultListener {
 	}
 
 	/**
-	 * To obtain the results array, both to send as input and to fetch
-	 * information back
+	 * To obtain the results array, both to send as input and to fetch information back
 	 * 
 	 * @return the results array
 	 */
@@ -239,40 +245,29 @@ public class StringSearcher implements ISearchResultListener {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.search.ui.ISearchResultListener#searchResultChanged(org.eclipse
-	 * .search.ui.SearchResultEvent)
+	 * @see org.eclipse.search.ui.ISearchResultListener#searchResultChanged(org.eclipse .search.ui.SearchResultEvent)
 	 * 
-	 * This method gets called each time the search result changes. So do the
-	 * filtration here. Not sure if this is the optimal way to do this, so keep
+	 * This method gets called each time the search result changes. So do the filtration here. Not sure if this is the optimal way to do this, so keep
 	 * exploring for a better way.
 	 */
 	@Override
 	public void searchResultChanged(SearchResultEvent e) {
-
-		// Get a reference to the search result so we can remove the matches
-		AbstractTextSearchResult result = null;
-		ISearchResult searchResult = e.getSearchResult();
-		if (searchResult instanceof AbstractTextSearchResult) {
-			result = ((AbstractTextSearchResult) searchResult);
-		}
+		WSConsole.d("SearchResult Changed");
 
 		if (e instanceof MatchEvent) {
 			// Get the matches
 			Match[] matches = ((MatchEvent) e).getMatches();
 			for (Match match : matches) {
 
+				// Get the matched Line
+				String lineElement = getLineElement(match);
+
 				// Get the file
-				IFile file = null;
-				Object element = match.getElement();
-				if (element instanceof IFile) {
-					file = ((IFile) element);
-				} else {
+				IFile file = getFile(match);
+				if (file == null) {
 					return;
 				}
 
-				// Get the matched Line
-				String lineElement = getLineElement(match);
 				// Should not occur. Something's wrong
 				if (lineElement == null) {
 					WSConsole.e("lineElement should not be null");
@@ -282,10 +277,14 @@ public class StringSearcher implements ISearchResultListener {
 					return;
 				}
 
+				if (lineElement.contains(R_LAYOUT)) {
+					layoutMatches.add(match);
+					System.out.println("asfsadfasdfjhsalkjfdhasfdlk");
+				}
+
 				// If the matchedLine is a R.id type, then check if the fileName
 				// is contained in the file as a R.layout also.
-				Map<String, List<String>> resultMap = getResults();
-				List<String> layoutStrings = resultMap.get(lineElement);
+				List<String> layoutStrings = getResults().get(lineElement);
 				int shouldRemoveMatch = REMOVE_MATCH_INITIALIZE;
 				if (layoutStrings != null) {
 					shouldRemoveMatch = REMOVE_MATCH_NOT_FOUND;
@@ -296,11 +295,28 @@ public class StringSearcher implements ISearchResultListener {
 					}
 				}
 				if (shouldRemoveMatch == REMOVE_MATCH_NOT_FOUND) {
-					WSConsole.d("Match is removed");
-					result.removeMatch(match);
+					WSConsole.d("Match is removed = " + lineElement);
+					// Store the removed matches to do a second round filtering
+					removedMatches.add(match);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get the file of the match element
+	 * 
+	 * @param match
+	 *            The match from the search result
+	 * @return the file
+	 */
+	private IFile getFile(Match match) {
+		IFile file = null;
+		Object element = match.getElement();
+		if (element instanceof IFile) {
+			file = ((IFile) element);
+		}
+		return file;
 	}
 
 	/**
@@ -348,5 +364,85 @@ public class StringSearcher implements ISearchResultListener {
 			}
 		}
 		return lineContent;
+	}
+
+	@Override
+	public void queryAdded(ISearchQuery query) {}
+
+	@Override
+	public void queryRemoved(ISearchQuery query) {}
+
+	@Override
+	public void queryStarting(ISearchQuery query) {}
+
+	@Override
+	public void queryFinished(ISearchQuery query) {
+		WSConsole.d("QueryFinished = "+query.getLabel());
+
+
+		// Map to map layout to the java files that inflates the layout
+		Map<String, List<String>> layoutToJavaMap = new HashMap<String, List<String>>();
+		List<Match> tempMatches = new ArrayList<Match>();
+
+		if (removedMatches == null || layoutMatches == null) {
+			return;
+		}
+
+		for (Match match : layoutMatches) {
+			// Get the file
+			IFile file = getFile(match);
+			if (file == null) {
+				return;
+			}
+		
+			String layoutString = getLineElement(match);
+			String layoutJavaType = UtilResource.getFileNameWithoutExtension(file.getName());
+
+			List<String> list = layoutToJavaMap.get(layoutString);
+			if (list == null) {
+				List<String> mList = new ArrayList<String>();
+				mList.add(layoutJavaType);
+				layoutToJavaMap.put(layoutString, mList);
+			} else {
+				layoutToJavaMap.get(layoutString).add(layoutJavaType);
+			}
+
+		}
+
+		for (Match match : removedMatches) {
+			// Get the file
+			IFile file = getFile(match);
+			if (file == null) {
+				return;
+			}
+
+			String idString = getLineElement(match);
+
+			List<String> layoutStrings = getResults().get(idString);
+			if (layoutStrings != null) {
+				for (String layoutString : layoutStrings) {
+					List<String> list = layoutToJavaMap.get(layoutString);
+					if (list != null) {
+						for (String javaType : list) {
+							if (UtilResource.searchFile(javaType, file.getLocation().toFile())) {
+								tempMatches.add(match);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		NewSearchUI.removeQueryListener(this);
+		ISearchResult searchResult = query.getSearchResult();
+		searchResult.removeListener(this);
+
+		if (searchResult instanceof AbstractTextSearchResult) {
+			AbstractTextSearchResult mSearchResult = (AbstractTextSearchResult) searchResult;
+			mSearchResult.removeMatches((Match[]) layoutMatches.toArray(new Match[layoutMatches.size()]));
+			mSearchResult.removeMatches((Match[]) removedMatches.toArray(new Match[removedMatches.size()]));
+			mSearchResult.addMatches((Match[]) tempMatches.toArray(new Match[tempMatches.size()]));
+		}
+
 	}
 }
