@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -19,6 +20,24 @@ import com.andromeda.utility.logging.WSConsole;
  */
 public class UtilResource {
 
+	private static final String ANDROID_MANIFEST_XML = "AndroidManifest.xml";
+
+	/**
+	 * 
+	 * @param resource the resource within the project
+	 * @return true if the resource is from the Android project, false otherwise
+	 */
+	public static boolean isAndroidProject(IResource resource) {
+		IProject project = resource.getProject();
+		IResource findMember = project.findMember(ANDROID_MANIFEST_XML);
+
+		if (findMember == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+		
 	/**
 	 * Creates a resource and refreshes the workspace
 	 * 
