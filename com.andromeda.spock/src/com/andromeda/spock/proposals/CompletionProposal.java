@@ -50,7 +50,7 @@ public class CompletionProposal implements IJavaCompletionProposalComputer {
 
 	@Override
 	public void sessionStarted() {
-		System.out.println("---------------------SESSION STARTED -----------------------------");
+		WSConsole.d("Content Assist Session Started");
 		filterTemplates();
 	}
 
@@ -66,9 +66,13 @@ public class CompletionProposal implements IJavaCompletionProposalComputer {
 		if (UtilResource.isAndroidProject(file)) {
 			WSConsole.d(file.getName() + " is from an Android Project");
 			deleteTemplate(templateStore, TEMPLATE_JDT_SYSOUT);
+			deleteTemplate(templateStore, TEMPLATE_JDT_TRY);
+			deleteTemplate(templateStore, TEMPLATE_JDT_CATCH);
 		} else {
 			WSConsole.d(file.getName() + " is from a NON-Android Project");
 			deleteTemplate(templateStore, TEMPLATE_SYSOUT);
+			deleteTemplate(templateStore, TEMPLATE_TRY);
+			deleteTemplate(templateStore, TEMPLATE_CATCH);
 		}
 
 		try {
@@ -88,7 +92,7 @@ public class CompletionProposal implements IJavaCompletionProposalComputer {
 	 */
 	private void deleteTemplate(TemplateStore templateStore, String id) {
 		TemplatePersistenceData templateData = templateStore.getTemplateData(id);
-		System.out.println(templateData);
+		WSConsole.d("Template Data that is deleted = " + id);
 		if (templateData != null) {
 			templateStore.delete(templateData);
 		}
@@ -96,7 +100,7 @@ public class CompletionProposal implements IJavaCompletionProposalComputer {
 
 	@Override
 	public void sessionEnded() {
-		System.out.println("---------------------SESSION ENDED -----------------------------");
+		WSConsole.d("Content Assist Session Ended");
 		getTemplateStore().restoreDeleted();
 	}
 
@@ -105,7 +109,7 @@ public class CompletionProposal implements IJavaCompletionProposalComputer {
 	 * 
 	 * @return the JDT template store
 	 */
-	public TemplateStore getTemplateStore() {
+	private TemplateStore getTemplateStore() {
 		if (templateStore == null) {
 			System.out.println("templateStore is null - Creating a new one");
 

@@ -6,11 +6,42 @@
       <template
             autoinsert="true"
             contextTypeId="java-statements"
-            description="prints hello"
-            id="com.andromeda.spock.template.hello"
-            name="hello">
+            description="try using EPOCLogger logging"
+            icon="icons/bookmark_obj.gif"
+            id="com.eclipse.jdt.ui.templates.try"
+            name="try">
          <pattern>
-            hello how are you?</pattern>
+            try {
+	${line_selection}${cursor}
+} catch (${Exception} ${exception_variable_name}) {
+	// ${todo}: handle exception
+	${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.e(${exception_variable_name});
+}</pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="java-statements"
+            description="prints to the logcat using EpocLogger"
+            icon="icons/bookmark_obj.gif"
+            id="com.eclipse.jdt.ui.templates.sysout"
+            name="sysout">
+         <pattern>
+            ${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.d(${word_selection}${});${cursor}
+         </pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="java-statements"
+            description="catch using EPOCLogger logging"
+            icon="icons/bookmark_obj.gif"
+            id="com.eclipse.jdt.ui.templates.catch"
+            name="catch">
+         <pattern>
+            catch (${Exception} ${exception_variable_name}) {
+	// ${todo}: handle exception
+	${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.e(${exception_variable_name});
+}
+         </pattern>
       </template>
    </extension>
    <extension
