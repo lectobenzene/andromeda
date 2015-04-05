@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="java-statements"
+            description="prints hello"
+            id="com.andromeda.spock.template.hello"
+            name="hello">
+         <pattern>
+            hello how are you?</pattern>
+      </template>
+   </extension>
+   <extension
+         id="com.andromeda.spock.ProposalComputer"
+         point="org.eclipse.jdt.ui.javaCompletionProposalComputer">
+      <javaCompletionProposalComputer
+            activate="true"
+            categoryId="org.eclipse.jdt.ui.defaultProposalCategory"
+            class="com.andromeda.spock.proposals.CompletionProposal"
+            needsSortingAfterFiltering="false">
+      </javaCompletionProposalComputer>
+   </extension>
+
+</plugin>
