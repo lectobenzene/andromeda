@@ -1,4 +1,4 @@
-package com.andromeda.spock.proposals;
+package com.andromeda.c3po.proposals;
 
 import java.io.IOException;
 import java.util.ArrayList;

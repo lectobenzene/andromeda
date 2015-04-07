@@ -50,7 +50,7 @@
       <javaCompletionProposalComputer
             activate="true"
             categoryId="org.eclipse.jdt.ui.defaultProposalCategory"
-            class="com.andromeda.spock.proposals.CompletionProposal"
+            class="com.andromeda.c3po.proposals.CompletionProposal"
             needsSortingAfterFiltering="false">
       </javaCompletionProposalComputer>
    </extension>
