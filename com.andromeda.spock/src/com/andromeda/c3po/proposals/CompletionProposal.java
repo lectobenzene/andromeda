@@ -11,6 +11,7 @@ import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jdt.ui.text.java.ContentAssistInvocationContext;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposalComputer;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
@@ -37,6 +38,7 @@ public class CompletionProposal implements IJavaCompletionProposalComputer {
 	private static final String TEMPLATE_TRY = "com.eclipse.jdt.ui.templates.try";
 	private static final String TEMPLATE_CATCH = "com.eclipse.jdt.ui.templates.catch";
 	private static final String TEMPLATE_SYSOUT = "com.eclipse.jdt.ui.templates.sysout";
+	private static final String TEMPLATE_SYSOUT_SELECTION = "com.eclipse.jdt.ui.templates.sysout.selection";
 
 	// The JDT template IDs
 	private static final String TEMPLATE_JDT_SYSOUT = "org.eclipse.jdt.ui.templates.sysout";
@@ -68,9 +70,18 @@ public class CompletionProposal implements IJavaCompletionProposalComputer {
 			deleteTemplate(templateStore, TEMPLATE_JDT_SYSOUT);
 			deleteTemplate(templateStore, TEMPLATE_JDT_TRY);
 			deleteTemplate(templateStore, TEMPLATE_JDT_CATCH);
+
+			ITextSelection currentSelection = UtilIDE.getCurrentSelection();
+			System.out.println(currentSelection.getText());
+			if (currentSelection != null && currentSelection.getText() != null && currentSelection.getText().length() != 0) {
+				deleteTemplate(templateStore, TEMPLATE_SYSOUT);
+			} else {
+				deleteTemplate(templateStore, TEMPLATE_SYSOUT_SELECTION);
+			}
 		} else {
 			WSConsole.d(file.getName() + " is from a NON-Android Project");
 			deleteTemplate(templateStore, TEMPLATE_SYSOUT);
+			deleteTemplate(templateStore, TEMPLATE_SYSOUT_SELECTION);
 			deleteTemplate(templateStore, TEMPLATE_TRY);
 			deleteTemplate(templateStore, TEMPLATE_CATCH);
 		}

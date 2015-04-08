@@ -15,7 +15,7 @@
 	${line_selection}${cursor}
 } catch (${Exception} ${exception_variable_name}) {
 	// ${todo}: handle exception
-	${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.e(${exception_variable_name});
+	${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.e(&quot;${exception_message}&quot;,${exception_variable_name});
 }</pattern>
       </template>
       <template
@@ -26,7 +26,7 @@
             id="com.eclipse.jdt.ui.templates.sysout"
             name="sysout">
          <pattern>
-            ${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.d(${word_selection}${});${cursor}
+            EPOCLogger.d(${});${cursor}
          </pattern>
       </template>
       <template
@@ -39,8 +39,19 @@
          <pattern>
             catch (${Exception} ${exception_variable_name}) {
 	// ${todo}: handle exception
-	${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.e(${exception_variable_name});
+	${:import(com.epocrates.epocutil.EPOCLogger)}EPOCLogger.e(&quot;${exception_message}&quot;,${exception_variable_name});
 }
+         </pattern>
+      </template>
+      <template
+            autoinsert="true"
+            contextTypeId="java-statements"
+            description="prints to the logcat using EpocLogger"
+            icon="icons/bookmark_obj.gif"
+            id="com.eclipse.jdt.ui.templates.sysout.selection"
+            name="sysout">
+         <pattern>
+            EPOCLogger.d(&quot;${}&quot;+${word_selection});${cursor}
          </pattern>
       </template>
    </extension>
