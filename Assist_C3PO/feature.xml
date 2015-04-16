@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="Assist_C3PO"
+      label="Assist (C-3PO)"
+      version="1.0.0.qualifier"
+      provider-name="Saravana">
+
+   <description>
+      Assist(C-3PO) is a tool that is specifically designed
+for for Android development. 
+It includes the following  features :
+1) New templates to work in Java editor but customized for Epocrates
+   </description>
+
+   <copyright>
+      Really ???
+   </copyright>
+
+   <license url="">
+      Install at you own risk :P
+   </license>
+
+   <plugin
+         id="com.andromeda.c3po"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.andromeda.utility"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>
